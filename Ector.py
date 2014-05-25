@@ -217,6 +217,7 @@ class Ector:
         else:
             self.cn    = ConceptNetwork()
         self.loadUserState()
+        self.prevsentences = "hello"
 
     def dump(self):
         """Save ECTOR.
@@ -280,13 +281,29 @@ class Ector:
         state               = self.cn.getState(self.username)
         e = Entry(entry, self.username, self.botname)
         sentences           = e.getSentences()
-        lastSentenceNode    = None
+        
+        lastSentenceNode    =  None
+
+        #print "sentence received is", sentences
+        if "Wrong." in sentences[0]:
+            sentences = sentences[1:len(sentences)]
+            for sentence in sentences:
+                sentenceNode = self.addSentence(sentence)
+                state.fullyActivate(sentence, "sentence")
+            if lastSentenceNode:
+                self.cn.addLink(lastSentenceNode,sentenceNode)
+            lastSentenceNode = sentenceNode
+            self.prevsentences = sentences
+            print lastSentenceNode
+            return lastSentenceNode
+            
         for sentence in sentences:
             sentenceNode = self.addSentence(sentence)
             state.fullyActivate(sentence, "sentence")
             if lastSentenceNode:
                 self.cn.addLink(lastSentenceNode,sentenceNode)
             lastSentenceNode = sentenceNode
+        self.prevsentences = sentences
         return lastSentenceNode
 
     def addSentence(self,sentence):
@@ -558,11 +575,11 @@ def main():
     previousSentenceNode    = None
     nodes                   = None
 
-    print """pyECTOR version %s, Copyright (C) 2008 Francois PARMENTIER
-pyECTOR comes with ABSOLUTELY NO WARRANTY; for details type `@show w'.
-This is free software, and you are welcome to redistribute it
-under certain conditions; type `@show c' for details.
-@help gives a basic help on pyECTOR commands.""" % (version)
+#    print """pyECTOR version %s, Copyright (C) 2008 Francois PARMENTIER
+#pyECTOR comes with ABSOLUTELY NO WARRANTY; for details type `@show w'.
+#This is free software, and you are welcome to redistribute it
+#under certain conditions; type `@show c' for details.
+#@help gives a basic help on pyECTOR commands.""" % (version)
 
     ector_path    = os.path.dirname(sys.argv[0])
     license_path  = os.path.abspath(ector_path + "/../LICENSE")
