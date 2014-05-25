@@ -150,7 +150,23 @@ class ConceptNetwork:
 
            nodeTo is a Node"""
         return [link for link in nodeTo.incomingLinks]
-
+        
+    def removeLink(self, nodeFrom, nodeTo, nodeLabel=None):
+        """Remove a directional link in ConceptNetwork"""
+        if not nodeFrom or not nodeTo:
+            raise ConceptNetworkIncompleteLink,"There lacks at least one node!"
+        deleteLink = (nodeFrom.getSymbol(),     nodeFrom.getTypeName(),
+                nodeTo.getSymbol(),       nodeTo.getTypeName(),
+                nodeLabel and nodeLabel.getSymbol() or nodeLabel,
+                nodeLabel and nodeLabel.getTypeName() or nodeLabel)
+        if deleteLink in self.link:
+            self.link.pop(deleteLink, None)
+#        nodeFrom.removeOutgoingLink(deleteLink)
+#        nodeTo.removeIncomingLink(deleteLink)
+#        if nodeLabel:
+#            nodeLabel.removeLabelingLink(deleteLink)
+        return deleteLink
+        
     def addLink(self,nodeFrom, nodeTo, nodeLabel=None):
         """Add a directional link to the ConceptNetwork.
 
@@ -415,6 +431,23 @@ class Node:
 
         Should not be called by another class than ConceptNetwork."""
         self.labelingLinks    += [link]
+
+    def removeOutgoingLink(self,link):
+        """Removes an outgoing link"""
+        self.outgoingLinks.remove(link)
+
+
+    def removeIncomingLink(self,link):
+        """Removes an incoming link
+
+        Should not be called by another class than ConceptNetwork."""
+        self.incomingLinks.remove(link)
+
+    def removeLabelingLink(self,link):
+        """Removes an labeling link
+
+        Should not be called by another class than ConceptNetwork."""
+        self.labelingLinks.remove(link)
 
     def show(self):
         """Display the node"""
@@ -783,6 +816,25 @@ def main():
                 node2 = cn.getNode(params[1])
                 node3 = cn.getNode(params[2])
                 print cn.addLink(node1,node2,node3)
+        elif line[:12] == "@removelink ":
+            params = line[12:].split()
+            if len(params) == 2:
+                try:
+                    node1 = cn.getNode(params[0])
+                except ConceptNetworkUnknownNode:
+                    print "The node \"%s\" does not exist!" % (params[0])
+                    continue
+                try:
+                    node2 = cn.getNode(params[1])
+                except ConceptNetworkUnknownNode:
+                    print "The node \"%s\" does not exist!" % (params[1])
+                    continue
+                print cn.removeLink(node1,node2)
+            elif len(params) == 3:
+                node1 = cn.getNode(params[0])
+                node2 = cn.getNode(params[1])
+                node3 = cn.getNode(params[2])
+                print cn.removeLink(node1,node2,node3)
         elif line[:10] == "@shownodes":
             cn.showNodes()
         elif line[:10] == "@showlinks":

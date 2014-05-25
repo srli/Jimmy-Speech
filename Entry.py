@@ -223,3 +223,4 @@ class Entry:
 if __name__ == "__main__":
     e = Entry("Un. Deux? Trois!! Quatre.")
     print e.getSentences()
+    print getTokens(e)

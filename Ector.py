@@ -573,6 +573,7 @@ def main():
     ector    = Ector(botname, username)
 
     previousSentenceNode    = None
+    previous_previousSentenceNode = None
     nodes                   = None
 
 #    print """pyECTOR version %s, Copyright (C) 2008 Francois PARMENTIER
@@ -687,6 +688,10 @@ But there are some commands you can use:
             print "There is no command",entry
         elif entry:
              entry    = unicode(entry, ENCODING)
+#             print "entry recieved is ", entry
+             if entry[0:5] == "wrong":
+                 ector.cn.removeLink(previous_previousSentenceNode, previousSentenceNode)
+                 ector.cn.addLink(previousSentenceNode, lastSentenceNode)
              lastSentenceNode = ector.addEntry(entry)
              if previousSentenceNode:
                  ector.cn.addLink(previousSentenceNode,lastSentenceNode)
@@ -701,7 +706,7 @@ But there are some commands you can use:
                  # sentence node occurrence.
                  for node in nodes:
                      ector.cn.addLink(node, lastSentenceNode)
-
+             previous_previousSentenceNode = previousSentenceNode
              previousSentenceNode    = lastSentenceNode
              # if log is activated, log the entry.
              if logfilename:
@@ -713,17 +718,21 @@ But there are some commands you can use:
              # Get the reply
              reply    = None
              if sentence_mode:
+                 previous_previousSentenceNode = previousSentenceNode
                  # Get one of the most activated sentences
                  replyNode = ector.getActivatedSentenceNode()
                  reply     = replyNode.getSymbol()
                  reply     = reply.replace("@bot@",  username)
                  reply     = reply.replace("@user@", botname)
                  previousSentenceNode = replyNode
+
+                 
              elif generate_mode:
                  (reply, nodes)    = ector.generateSentence(debug)
                  reply     = reply.replace("@bot@",  username)
                  reply     = reply.replace("@user@", botname)
                  previousSentenceNode = None
+                 previous_previousSentenceNode = None
              if reply:
                  print "%s>" % (ector.botname), reply.encode(ENCODING)
                  if logfilename:
