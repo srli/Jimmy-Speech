@@ -11,6 +11,9 @@ import random
 class Markov(object):
 	
 	def __init__(self, open_file):
+     """Creates a markov object that contains a cache dictionary, and a "words" method
+        which is a list of all the words in the input text.     
+     """
 		self.cache = {}
 		self.open_file = open_file
 		self.words = self.file_to_words()
@@ -19,6 +22,7 @@ class Markov(object):
 		
 	
 	def file_to_words(self):
+     """Turns the input text into a list of individual words"""
 		self.open_file.seek(0)
 		data = self.open_file.read()
 		words = data.split()
@@ -45,7 +49,7 @@ class Markov(object):
 			else:
 				self.cache[key] = [w3]
 				
-	def generate_markov_text(self, size=25):
+	def generate_markov_text(self, size):
 		seed = random.randint(0, self.word_size-3)
 		seed_word, next_word = self.words[seed], self.words[seed+1]
 		w1, w2 = seed_word, next_word
@@ -56,5 +60,3 @@ class Markov(object):
 		gen_words.append(w2)
 		return ' '.join(gen_words)
 			
-			
-		
